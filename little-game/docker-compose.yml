@@ -1,0 +1,27 @@
+version: '3.9'
+
+services:
+  game:
+    image: ragg/littlegame
+    build:
+      context: .
+      dockerfile: Dockerfile
+    # Use of traefik as reverse-proxy
+    labels:
+      - "traefik.enable=true"
+      - "traefik.docker.network=traefik"
+      - "traefik.http.routers.game.rule=Host(`${DOMAIN}`)"
+      - "traefik.http.routers.game.service=game"
+      - "traefik.http.routers.game.entrypoints=http"
+      - "traefik.http.routers.game-secured.rule=Host(`${DOMAIN}`)"
+      - "traefik.http.routers.game-secured.entrypoints=https"
+      - "traefik.http.routers.game-secured.tls.certresolver=tls"
+      - "traefik.http.routers.game-secured.tls=true"
+      - "traefik.http.routers.game-secured.service=game"
+      - "traefik.http.services.game.loadbalancer.server.port=80"
+    networks:
+      - traefik
+
+networks:
+  traefik:
+    external: true
